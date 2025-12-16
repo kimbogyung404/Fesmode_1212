@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Festival Mode</title>
+
+<!-- ✅ 미리읽기 -->
+<link rel="preload" as="video" href="Stage 1.mp4">
+<link rel="preload" as="video" href="Stage 2.mp4">
+<link rel="preload" as="video" href="Stage 3.mp4" type="video/mp4">
+
+<link rel="preload" as="video" href="Stage 4.mp4">
+<link rel="preload" as="video" href="Stage 5.mp4">
+<link rel="preload" as="video" href="Stage 6.mp4">
+
+<link rel="preload" as="audio" href="Rock 3.mp3">
+<link rel="preload" as="audio" href="Rock 4.mp3">
+<link rel="preload" as="audio" href="Cheers.mp3">
+<link rel="preload" as="audio" href="cheers 2.mp3">
+<link rel="preload" as="audio" href="cheers 3.mp3">
+<link rel="preload" as="audio" href="cheers 4.m4a">
+<link rel="preload" as="audio" href="cheers 5.mp3">
+
+<style>
+  @font-face {
+    font-family: "Pretendard";
+    font-weight: 500;
+    src: local("Pretendard Medium"), url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+  }
+
+  :root{
+    --fade:.8s ease-in-out;
+    --ui-x:280px;
+    --ui-y:-10px;
+    --btn-x:70px;
+    --btn-y:310px;
+  }
+
+  html,body{height:100%;}
+  body{
+    margin:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    background:url('Background.png') no-repeat center/cover fixed;
+    transition:background var(--fade);
+    overflow:hidden;color:#fff;
+    font-family:"Pretendard","Pretendard Variable",system-ui,sans-serif;
+  }
+
+  .stage{position:relative;width:min(95vw,1200px);aspect-ratio:16/9;}
+
+  .title1{width:85%;max-width:850px;position:relative;top:-10px;transition:opacity var(--fade);}
+  .start-btn{
+    width:18%;max-width:200px;margin-top:30px;cursor:pointer;
+    transition:transform .2s ease-in-out,opacity var(--fade);
+    position:relative;z-index:20;
+  }
+  @keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .start-btn:hover{animation:shakeX .4s ease-in-out infinite;}
+
+  .stage2{background:url('Background 2.png') no-repeat center/cover fixed;}
+  .stage3{background:url('Background 3.png') no-repeat center/cover fixed;}
+  .stage4{background:url('Background 4.png') no-repeat center/cover fixed;}
+  .stage5{background:url('Background 5.png') no-repeat center/cover fixed;}
+  .stage6{background:url('Background 5.png') no-repeat center/cover fixed;}
+  .stage7{background:url('Background 6.png') no-repeat center/cover fixed;}
+
+  .title2{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:70%;max-width:700px;opacity:0;transition:opacity var(--fade);pointer-events:none;
+  }
+
+  .show{opacity:1;}
+  .hide-start{opacity:0;pointer-events:none;}
+
+  .title-pos{
+    position:absolute;left:50%;top:-20px;transform:translateX(-50%);
+    width:70%;max-width:760px;opacity:0;transition:opacity var(--fade);
+    pointer-events:none;user-select:none;
+  }
+  .title-pos.show{opacity:1;}
+
+  /* Stage5 */
+  .stage5-container{
+    position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;
+    padding:0 5%;opacity:0;transition:opacity var(--fade);pointer-events:none;
+  }
+  .stage5-container.show{opacity:1;pointer-events:auto;}
+  .title-left{width:clamp(200px,30vw,520px);height:auto;max-width:600px;}
+
+  .tickets{display:flex;flex-direction:column;gap:22px;align-items:flex-end;}
+  .tickets img{width:clamp(160px,18vw,300px);height:auto;transition:transform .3s ease-in-out;}
+  .tickets img:nth-child(2){transform:scale(2) translate(135px,10px);transform-origin:right center;}
+
+  .input-bar{
+    position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
+    display:flex;align-items:flex-end;gap:22px;transition:opacity var(--fade);opacity:0;pointer-events:none;
+  }
+  .input-bar.on{opacity:1;pointer-events:auto;}
+  .name-input{
+    background:transparent;border:none;border-bottom:3px solid #fff;outline:none;
+    color:#fff;font-size:clamp(18px,2.4vw,32px);padding:6px 2px 4px;width:clamp(220px,34vw,520px);
+  }
+  .name-input::placeholder{color:#fff;opacity:.9;}
+  .next-btn{display:block;width:clamp(110px,13vw,180px);height:auto;cursor:pointer;transition:transform .15s ease-in-out;}
+  .next-btn:hover{transform:translateY(-2px) scale(1.02);}
+  .next-btn:active{transform:translateY(0) scale(.99);}
+
+  /* Stage6 */
+  .stage6-container{
+    position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;
+    padding:0 5%;opacity:0;transition:opacity var(--fade);pointer-events:none;
+  }
+  .stage6-container.show{opacity:1;pointer-events:auto;}
+  .title6-left{width:clamp(200px,30vw,520px);height:auto;max-width:600px;}
+
+  .ui-wrap{
+    position:relative;width:clamp(220px,34vw,560px);max-width:640px;height:auto;
+    transform:scale(2) translate(var(--ui-x),var(--ui-y));
+    transform-origin:right center;transition:transform .25s ease-in-out;
+  }
+  .ui-right{display:block;width:100%;height:auto;}
+  .more-btn{
+    position:absolute;left:var(--btn-x);top:var(--btn-y);
+    width:clamp(50px,6vw,90px);height:auto;z-index:3;cursor:pointer;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));transition:transform .15s ease-in-out;
+  }
+  .more-btn:hover{transform:translateY(-1px);}
+  .more-btn:active{transform:translateY(0);}
+
+  /* Stage7 */
+  .stage7-container{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;transition:opacity var(--fade);pointer-events:none;
+  }
+  .stage7-container.show{opacity:1;pointer-events:auto;}
+  .title7-img{width:clamp(380px,60%,820px);height:auto;margin-bottom:30px;user-select:none;pointer-events:none;}
+  .explanation-img{width:clamp(520px,68%,980px);height:auto;max-width:1000px;margin-bottom:30px;user-select:none;pointer-events:none;}
+  .next7-btn{width:clamp(150px,15vw,220px);height:auto;margin-bottom:30px;cursor:pointer;transition:transform .15s ease-in-out;}
+  .next7-btn:hover{transform:translateY(-3px) scale(1.05);}
+  .next7-btn:active{transform:translateY(0) scale(.98);}
+
+  /* Player Overlay */
+  .player-overlay{
+    position:fixed;inset:0;
+    background:url('Background 5.png') center/cover fixed;
+    display:none;z-index:9999;align-items:center;justify-content:center;
+  }
+  .player-overlay.show{display:flex;}
+
+  .overlay-inner{
+    width:min(95vw,1400px);
+    display:flex;flex-direction:column;align-items:center;gap:30px;
+    padding:clamp(12px,2.5vw,32px);
+  }
+
+  .overlay-video{
+    width:min(70vw,1100px);
+    height:auto;aspect-ratio:16/9;
+    border-radius:14px;
+    box-shadow:0 12px 40px rgba(0,0,0,.55);
+    background:#000;
+    object-fit:cover;
+    pointer-events:none;
+    transition: box-shadow .25s ease; /* ✅ 추가 */
+  }
+  /* ✅ icon4 클릭 시 10px 흰색 테두리 표시 */
+  .overlay-video.border-flash{
+    box-shadow: 0 0 0 10px #fff, 0 12px 40px rgba(0,0,0,.55);
+  }
+
+  .icon-bar{
+    width:100%;display:flex;align-items:center;justify-content:center;
+    gap:clamp(14px,3vw,28px);flex-wrap:wrap;
+  }
+  .icon-bar img{
+    width:clamp(70px,9vw,110px);height:auto;cursor:pointer;user-select:none;
+    transition:transform .15s ease-in-out,filter .15s ease-in-out;
+    filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));
+  }
+  .icon-bar img:hover{transform:translateY(-4px) scale(1.04);}
+  .icon-bar img:active{transform:translateY(0) scale(.98);}
+  video::-webkit-media-controls{display:none!important;}
+</style>
+</head>
+<body>
+  <div class="stage" id="stageRoot">
+    <img src="Tittle.png" alt="Title" class="title1" id="title1"/>
+    <img src="Start button.png" alt="Start Button" class="start-btn" id="startBtn"/>
+    <img src="Tittle 2.png" alt="Tittle 2" class="title2" id="title2"/>
+    <img src="Tittle 3.png" alt="Tittle 3" class="title-pos" id="title3"/>
+    <img src="Tittle 4.png" alt="Tittle 4" class="title-pos" id="title4"/>
+
+    <div class="stage5-container" id="stage5Container">
+      <img src="Tittle 5.png" alt="Tittle 5" class="title-left"/>
+      <div class="tickets">
+        <img src="Ticket_Small.png" alt="Ticket Small"/>
+        <img src="Ticket_Large.png" alt="Ticket Large" id="ticketLarge"/>
+      </div>
+    </div>
+
+    <div class="stage6-container" id="stage6Container" aria-hidden="true">
+      <img src="Tittle 6.png" alt="Tittle 6" class="title6-left"/>
+      <div class="ui-wrap" id="uiWrap">
+        <img src="UI.png" alt="UI" class="ui-right" id="uiRight"/>
+        <img src="More view button.png" alt="More view" class="more-btn" id="moreBtn"/>
+      </div>
+    </div>
+
+    <div class="stage7-container" id="stage7Container" aria-hidden="true">
+      <img src="Tittle 7.png" alt="Tittle 7" class="title7-img" id="title7Img"/>
+      <img src="Explanation.png" alt="Explanation" class="explanation-img" id="explanationImg"/>
+      <img src="Next button.png" alt="Next" class="next7-btn" id="next7Btn"/>
+    </div>
+
+    <div class="input-bar" id="inputBar">
+      <input class="name-input" id="nameInput" type="text" placeholder="Write the name here"/>
+      <img src="Next button.png" alt="Next" class="next-btn" id="nextBtn"/>
+    </div>
+  </div>
+
+  <div class="player-overlay" id="playerOverlay" aria-hidden="true">
+    <div class="overlay-inner">
+      <video id="stageVideo" class="overlay-video"
+             playsinline autoplay muted loop preload="auto"
+             controlslist="nodownload noplaybackrate nofullscreen"
+             disablepictureinpicture
+             src="Stage 1.mp4">
+        브라우저가 video 태그를 지원하지 않습니다.
+      </video>
+
+      <div class="icon-bar">
+        <img src="icon 5.png" alt="Icon 5" id="icon5">
+        <img src="icon 1.png" alt="Icon 1" id="icon1">
+        <img src="icon 2.png" alt="Icon 2" id="icon2">
+        <img src="icon 3.png" alt="Icon 3" id="icon3">
+        <img src="icon 4.png" alt="Icon 4" id="icon4">
+      </div>
+    </div>
+  </div>
+
+<script>
+  const body=document.body;
+  const stageRoot=document.getElementById('stageRoot');
+  const startBtn=document.getElementById('startBtn');
+  const title1=document.getElementById('title1');
+  const title2=document.getElementById('title2');
+  const title3=document.getElementById('title3');
+  const title4=document.getElementById('title4');
+  const inputBar=document.getElementById('inputBar');
+  const nameInput=document.getElementById('nameInput');
+  const nextBtn=document.getElementById('nextBtn');
+  const stage5Container=document.getElementById('stage5Container');
+  const stage6Container=document.getElementById('stage6Container');
+  const stage7Container=document.getElementById('stage7Container');
+  const ticketLarge=document.getElementById('ticketLarge');
+  const moreBtn=document.getElementById('moreBtn');
+  const next7Btn=document.getElementById('next7Btn');
+  const playerOverlay=document.getElementById('playerOverlay');
+  const stageVideo=document.getElementById('stageVideo');
+
+  /* 🔔 Icon refs */
+  const icon1=document.getElementById('icon1');
+  const icon2=document.getElementById('icon2');
+  const icon3=document.getElementById('icon3');
+  const icon4=document.getElementById('icon4');
+  const icon5=document.getElementById('icon5');
+
+  /* 🔁 Rock3/4 토글 (배경 음악) */
+  const rock3 = new Audio('Rock 3.mp3');
+  const rock4 = new Audio('Rock 4.mp3');
+  rock3.loop = true;
+  rock4.loop = true;
+  rock3.volume = 1.0;
+  rock4.volume = 1.0;
+  let playRock3Next = true;
+
+  startBtn.addEventListener('click',()=>{
+    body.classList.add('stage2');
+    startBtn.classList.add('hide-start');
+    title1.style.opacity=0;
+    setTimeout(()=>title2.classList.add('show'),300);
+    setTimeout(()=>{
+      title2.classList.remove('show');
+      body.classList.remove('stage2');body.classList.add('stage3');
+      setTimeout(()=>{title3.classList.add('show');inputBar.classList.add('on');},200);
+    },1000);
+  });
+
+  let nextStep=0;
+  nextBtn.addEventListener('click',()=>{
+    if(nextStep===0){
+      body.classList.remove('stage3');body.classList.add('stage4');title3.classList.remove('show');
+      setTimeout(()=>title4.classList.add('show'),150);
+      inputBar.classList.add('hide-input');
+      setTimeout(()=>{if(nameInput)nameInput.style.display='none';inputBar.classList.remove('hide-input');},600);
+      nextStep=1;
+    }else if(nextStep===1){
+      body.classList.remove('stage4');body.classList.add('stage5');title4.classList.remove('show');
+      setTimeout(()=>stage5Container.classList.add('show'),250);
+      nextBtn.style.display='none';nextStep=2;
+    }
+  });
+
+  let xOffset=135,yOffset=10,arrowPressCount=0;const ARROW_THRESHOLD=10;
+  document.addEventListener('keydown',e=>{
+    const tag=(e.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea'||e.target.isContentEditable)return;
+
+    if(body.classList.contains('stage5')){
+      if(e.key==='ArrowLeft'){e.preventDefault();xOffset-=10;yOffset+=5;arrowPressCount++;}
+      else if(e.key==='ArrowRight'){e.preventDefault();xOffset+=10;yOffset+=5;arrowPressCount++;}
+      else return;
+      if(ticketLarge)ticketLarge.style.transform=`scale(2) translate(${xOffset}px,${yOffset}px)`;
+      if(arrowPressCount>=ARROW_THRESHOLD)goToStage6();
+    }
+
+    if(body.classList.contains('stage6')&&e.shiftKey){
+      e.preventDefault();
+      const root=document.documentElement;
+      const currentX=parseInt(getComputedStyle(root).getPropertyValue('--ui-x'))||0;
+      const currentY=parseInt(getComputedStyle(root).getPropertyValue('--ui-y'))||0;
+      const step=5;
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+        root.style.setProperty('--ui-x',`${currentX+(e.key==='ArrowRight'?step:-step)}px`);
+      }
+      if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+        root.style.setProperty('--ui-y',`${currentY+(e.key==='ArrowDown'?step:-step)}px`);
+      }
+    }
+  });
+
+  function goToStage6(){
+    stage5Container.classList.remove('show');
+    body.classList.remove('stage5');body.classList.add('stage6');
+    setTimeout(()=>stage6Container.classList.add('show'),150);
+    arrowPressCount=0;
+  }
+
+  moreBtn.addEventListener('click',()=>{
+    stage6Container.classList.remove('show');body.classList.remove('stage6');body.classList.add('stage7');
+    setTimeout(()=>stage7Container.classList.add('show'),200);
+  });
+
+  /* 🎵 마지막 Next 버튼 → Rock3/4 번갈아 재생 + 오버레이 오픈 */
+  next7Btn.addEventListener('click',async()=>{
+    stageRoot.style.display='none';
+    playerOverlay.classList.add('show');
+
+    try{stageVideo.muted=true;stageVideo.loop=true;stageVideo.preload='auto';await stageVideo.play();}catch(e){console.warn('Autoplay blocked',e);}
+
+    try{
+      if(playRock3Next){
+        rock4.pause(); rock4.currentTime=0;
+        await rock3.play();
+      }else{
+        rock3.pause(); rock3.currentTime=0;
+        await rock4.play();
+      }
+      playRock3Next = !playRock3Next;
+    }catch(err){ console.warn('Audio play blocked:', err); }
+  });
+
+  /* ▶️ 안전한 1회 재생 후 Stage 1로 복귀 (누락 방지: 토큰) */
+  let restoreToken = 0;
+  function playOnceThenRestore(tempSrc){
+    restoreToken++;
+    const myToken = restoreToken;
+
+    stageVideo.loop = false;
+    stageVideo.muted = true;
+    stageVideo.preload = 'auto';
+    stageVideo.src = tempSrc;
+    stageVideo.currentTime = 0;
+
+    stageVideo.play().catch(err=>{
+      console.warn('Video play blocked:', err);
+    });
+
+    stageVideo.onended = ()=>{
+      if(myToken !== restoreToken) return;
+      stageVideo.src = "Stage 1.mp4";
+      stageVideo.loop = true;
+      stageVideo.currentTime = 0;
+      stageVideo.play().catch(err=>console.warn('Autoplay blocked:',err));
+    };
+  }
+
+  /* ▶️ Stage 1 고정 재생 (icon4 전용) */
+  function ensureStage1Playing(){
+    restoreToken++;
+    const want = "Stage 1.mp4";
+    const currentSrc = stageVideo.currentSrc || stageVideo.src || "";
+    if(!currentSrc.includes("Stage%201.mp4") && !currentSrc.includes("Stage 1.mp4")){
+      stageVideo.loop = true;
+      stageVideo.muted = true;
+      stageVideo.preload = 'auto';
+      stageVideo.src = want;
+      stageVideo.currentTime = 0;
+    }
+    if(stageVideo.paused){
+      stageVideo.play().catch(err=>console.warn('Stage1 play blocked:', err));
+    }
+    stageVideo.onended = null;
+  }
+
+  /* 🎧 아이콘별 사운드 소스 */
+  const sfxSrc = {
+    icon5: 'Cheers.mp3',
+    icon1: 'cheers 2.mp3',
+    icon2: 'cheers 3.mp3',
+    icon3: 'cheers 4.m4a',
+    icon4: 'cheers 5.mp3'
+  };
+
+  /* ▶️ 사운드 재생 */
+  function playSfx(id){
+    const src = sfxSrc[id];
+    if(!src) return;
+    const a = new Audio(encodeURI(src));
+    a.preload = 'auto';
+    a.play().catch(err=>console.warn('SFX play blocked:', err));
+  }
+
+  /* 🎬 아이콘별 "영상 + 사운드" */
+  icon2.addEventListener('click', ()=>{
+    playOnceThenRestore('Stage 2.mp4');
+    playSfx('icon2');
+  });
+
+  icon1.addEventListener('click', ()=>{
+    playOnceThenRestore('Stage 4.mp4');
+    playSfx('icon1');
+  });
+
+  icon5.addEventListener('click', ()=>{
+    playOnceThenRestore('Stage 3.mp4');
+    playSfx('icon5');
+  });
+
+  icon3.addEventListener('click', ()=>{
+    playOnceThenRestore('Stage 5.mp4');
+    playSfx('icon3');
+  });
+
+  /* ✅ icon4: Stage 1 유지 + cheers 5.mp3 + 10px 테두리 플래시 */
+  let borderTimer = null;
+  icon4.addEventListener('click', ()=>{
+    ensureStage1Playing();
+    playSfx('icon4');
+
+    if(borderTimer) clearTimeout(borderTimer);
+    stageVideo.classList.add('border-flash');
+    borderTimer = setTimeout(()=>{
+      stageVideo.classList.remove('border-flash');
+      borderTimer = null;
+    }, 1200);
+  });
+
+  /* (정리) 페이지 떠날 때 배경 오디오 멈춤 */
+  window.addEventListener('beforeunload',()=>{
+    rock3.pause(); rock4.pause();
+  });
+</script>
+</body>
+</html>
